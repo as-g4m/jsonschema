@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/qri-io/jsonschema"
+	"github.com/as-g4m/jsonschema"
 )
 
 func createTestServer() *httptest.Server {
