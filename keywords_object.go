@@ -325,15 +325,13 @@ func (ap *AdditionalProperties) ValidateKeyword(ctx context.Context, currentStat
 			if currentState.IsLocallyEvaluatedKey(key) {
 				continue
 			}
-
+			if ap.schemaType == schemaTypeFalse {
+				currentState.AddError(data, "additional property '"+key+"' is not allowed")
+				continue
+			}
 			currentState.SetEvaluatedKey(key)
 			subState.ClearState()
 			subState.DescendInstanceFromState(currentState, key)
-
-			if ap.schemaType == schemaTypeFalse {
-				subState.AddError(data, "additional properties are not allowed")
-				return
-			}
 
 			(*Schema)(ap).ValidateKeyword(ctx, subState, obj[key])
 			currentState.UpdateEvaluatedPropsAndItems(subState)
