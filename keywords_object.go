@@ -49,7 +49,7 @@ func (p Properties) ValidateKeyword(ctx context.Context, currentState *Validatio
 		subState := currentState.NewSubState()
 		for key := range p {
 			if _, ok := obj[key]; ok {
-				currentState.SetEvaluatedKey(key)
+				currentState.SetEvaluatedKey(key, currentState.InstanceLocation)
 				subState.ClearState()
 				subState.DescendBaseFromState(currentState, "properties", key)
 				subState.DescendRelativeFromState(currentState, "properties", key)
@@ -222,7 +222,7 @@ func (p PatternProperties) ValidateKeyword(ctx context.Context, currentState *Va
 		for key, val := range obj {
 			for _, ptn := range p {
 				if ptn.re.Match([]byte(key)) {
-					currentState.SetEvaluatedKey(key)
+					currentState.SetEvaluatedKey(key, currentState.InstanceLocation)
 					subState := currentState.NewSubState()
 					subState.DescendBase("patternProperties", key)
 					subState.DescendRelative("patternProperties", key)
@@ -322,14 +322,14 @@ func (ap *AdditionalProperties) ValidateKeyword(ctx context.Context, currentStat
 		subState.DescendBase("additionalProperties")
 		subState.DescendRelative("additionalProperties")
 		for key := range obj {
-			if currentState.IsLocallyEvaluatedKey(key) {
+			if currentState.IsLocallyEvaluatedKey(key, currentState.InstanceLocation) {
 				continue
 			}
 			if ap.schemaType == schemaTypeFalse {
 				currentState.AddError(data, "additional property '"+key+"' is not allowed")
 				continue
 			}
-			currentState.SetEvaluatedKey(key)
+			currentState.SetEvaluatedKey(key, currentState.InstanceLocation)
 			subState.ClearState()
 			subState.DescendInstanceFromState(currentState, key)
 
@@ -665,7 +665,7 @@ func (up *UnevaluatedProperties) ValidateKeyword(ctx context.Context, currentSta
 		subState.DescendBase("unevaluatedProperties")
 		subState.DescendRelative("unevaluatedProperties")
 		for key := range obj {
-			if currentState.IsEvaluatedKey(key) {
+			if currentState.IsEvaluatedKey(key, currentState.InstanceLocation) {
 				continue
 			}
 			if up.schemaType == schemaTypeFalse {

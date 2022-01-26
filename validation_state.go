@@ -79,20 +79,23 @@ func (vs *ValidationState) ClearState() {
 }
 
 // SetEvaluatedKey updates the evaluation properties of the current state
-func (vs *ValidationState) SetEvaluatedKey(key string) {
-	(*vs.EvaluatedPropertyNames)[key] = true
-	(*vs.LocalEvaluatedPropertyNames)[key] = true
+func (vs *ValidationState) SetEvaluatedKey(key string, instanceLocation *jptr.Pointer) {
+	keyPath := vs.getKeyPath(instanceLocation)
+	(*vs.EvaluatedPropertyNames)[keyPath+key] = true
+	(*vs.LocalEvaluatedPropertyNames)[keyPath+key] = true
 }
 
 // IsEvaluatedKey checks if the key is evaluated against the state context
-func (vs *ValidationState) IsEvaluatedKey(key string) bool {
-	_, ok := (*vs.EvaluatedPropertyNames)[key]
+func (vs *ValidationState) IsEvaluatedKey(key string, instanceLocation *jptr.Pointer) bool {
+	keyPath := vs.getKeyPath(instanceLocation)
+	_, ok := (*vs.EvaluatedPropertyNames)[keyPath+key]
 	return ok
 }
 
 // IsLocallyEvaluatedKey checks if the key is evaluated against the local state context
-func (vs *ValidationState) IsLocallyEvaluatedKey(key string) bool {
-	_, ok := (*vs.LocalEvaluatedPropertyNames)[key]
+func (vs *ValidationState) IsLocallyEvaluatedKey(key string, instanceLocation *jptr.Pointer) bool {
+	keyPath := vs.getKeyPath(instanceLocation)
+	_, ok := (*vs.LocalEvaluatedPropertyNames)[keyPath+key]
 	return ok
 }
 
@@ -192,4 +195,12 @@ func (vs *ValidationState) DescendInstance(token ...string) {
 func (vs *ValidationState) DescendInstanceFromState(base *ValidationState, token ...string) {
 	newPtr := base.InstanceLocation.RawDescendant(token...)
 	vs.InstanceLocation = &newPtr
+}
+
+func (vs *ValidationState) getKeyPath(instanceLocation *jptr.Pointer) string {
+	var keyPath string
+	for _, il := range *instanceLocation {
+		keyPath += il + "."
+	}
+	return keyPath
 }

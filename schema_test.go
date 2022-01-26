@@ -680,7 +680,58 @@ func TestValidateBytes(t *testing.T) {
 	"port": 80
 }`,
 			[]string{
-				`/port: {"port":80} additional properties are not allowed`,
+				`/: {"port":80} additional property 'port' is not allowed`,
+			}},
+		{`{
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"server": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"address": {
+						"type": "string"
+					}
+				}
+			}
+		}
+	}`,
+			`{
+	"server": {
+		"address":"localhost"
+	},
+	"address": "localhost"
+}`,
+			[]string{
+				`/: {"address":"localhos... additional property 'address' is not allowed`,
+			}},
+		{`{
+		"type": "object",
+		"additionalProperties": false,
+		"properties": {
+			"server": {
+				"type": "object",
+				"additionalProperties": false,
+				"properties": {
+					"location": {
+						"type": "string"
+					}
+				}
+			},
+			"address": {
+				"type": "string"
+			}
+		}
+	}`,
+			`{
+	"server": {
+		"address":"localhost"
+	},
+	"address": "localhost"
+}`,
+			[]string{
+				`/server: {"address":"localhos... additional property 'address' is not allowed`,
 			}},
 	}
 
